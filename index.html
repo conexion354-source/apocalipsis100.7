@@ -1,0 +1,280 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FM Apocalipsis 100.7</title>
+
+<link rel="manifest" href="manifest.webmanifest">
+
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Apocalipsis">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
+<style>
+body{
+margin:0;
+font-family:system-ui, Arial;
+background:linear-gradient(180deg,#0f172a,#020617);
+color:white;
+text-align:center;
+}
+
+.container{
+max-width:420px;
+margin:auto;
+padding:20px;
+}
+
+.logo{
+width:95px;
+margin-top:12px;
+}
+
+.title{
+font-size:22px;
+font-weight:700;
+margin-top:6px;
+}
+
+.subtitle{
+color:#94a3b8;
+font-size:14px;
+margin-bottom:12px;
+}
+
+.player{
+background:#1e293b;
+border-radius:18px;
+padding:22px;
+margin-top:18px;
+box-shadow:0 10px 30px rgba(0,0,0,0.5);
+}
+
+.live{
+color:#ef4444;
+font-weight:bold;
+margin-bottom:10px;
+}
+
+.song{
+font-size:16px;
+margin-top:6px;
+}
+
+.listeners{
+color:#cbd5f5;
+font-size:14px;
+}
+
+.controls{
+margin-top:14px;
+}
+
+.controls button{
+font-size:20px;
+padding:14px 22px;
+border:none;
+border-radius:50px;
+margin:6px;
+}
+
+.play{background:#22c55e;color:white}
+.pause{background:#ef4444;color:white}
+
+.volume{
+width:100%;
+margin-top:12px;
+}
+
+.programs{
+margin-top:25px;
+text-align:left;
+}
+
+.card{
+background:#111827;
+padding:14px;
+border-radius:14px;
+margin-bottom:10px;
+}
+
+.card b{
+display:block;
+font-size:14px;
+}
+
+.buttons{
+margin-top:20px;
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.whatsapp{
+background:#25D366;
+padding:14px;
+border-radius:12px;
+color:white;
+text-decoration:none;
+font-weight:bold;
+}
+
+.youtube{
+background:#ff0000;
+padding:14px;
+border-radius:12px;
+color:white;
+text-decoration:none;
+font-weight:bold;
+}
+
+.install{
+margin-top:12px;
+padding:12px;
+border:none;
+background:#334155;
+color:white;
+border-radius:10px;
+font-size:14px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<img src="logo.png" class="logo">
+
+<div class="title">FM Apocalipsis 100.7</div>
+<div class="subtitle">La voz que viene de lo alto · Santa Sylvina</div>
+
+<div class="player">
+
+<div class="live">🔴 EN VIVO</div>
+
+<div class="song" id="song">Canción: cargando...</div>
+<div class="listeners" id="listeners">Oyentes: --</div>
+<div class="listeners" id="time"></div>
+
+<div class="controls">
+<button class="play" onclick="play()">▶</button>
+<button class="pause" onclick="pause()">❚❚</button>
+</div>
+
+<input class="volume" type="range" min="0" max="1" step="0.01" onchange="volume(this.value)">
+
+</div>
+
+<div class="programs">
+
+<div class="card">
+<b>Lunes y Miércoles</b>
+21:00 – 22:00<br>
+Zona Fe
+</div>
+
+<div class="card">
+<b>Viernes</b>
+20:00 – 22:00<br>
+Conectados
+</div>
+
+<div class="card">
+<b>Sábado</b>
+08:00 – 10:00<br>
+Zona Fe Magazine
+</div>
+
+<div class="card">
+<b>Domingo</b>
+09:00 – 11:00<br>
+Conectados
+</div>
+
+</div>
+
+<div class="buttons">
+
+<a class="youtube" href="https://www.youtube.com/@zonafe" target="_blank">
+▶ Mirá Zona Fe en vivo (YouTube)
+</a>
+
+<a class="whatsapp" href="https://chat.whatsapp.com/FQnkIaic0ZEKR5nYNmheOV?mode=hq2tcli" target="_blank">
+💬 Grupo de WhatsApp
+</a>
+
+</div>
+
+<button id="installBtn" class="install">Instalar app</button>
+
+</div>
+
+<audio id="radio"></audio>
+
+<script>
+
+const stream="https://radios.solumedia.com:6322/stream";
+const metadata="https://radios.solumedia.com:6322/status-json.xsl";
+
+const audio=document.getElementById("radio");
+
+function play(){
+audio.src=stream;
+audio.play();
+}
+
+function pause(){
+audio.pause();
+}
+
+function volume(v){
+audio.volume=v;
+}
+
+function updateClock(){
+document.getElementById("time").innerText="Hora: "+new Date().toLocaleTimeString();
+}
+setInterval(updateClock,1000);
+
+async function meta(){
+try{
+let r=await fetch(metadata);
+let j=await r.json();
+let s=j.icestats.source;
+
+document.getElementById("song").innerText="Canción: "+(s.title||"En vivo");
+document.getElementById("listeners").innerText="Oyentes: "+s.listeners;
+
+}catch(e){}
+}
+
+setInterval(meta,20000);
+meta();
+
+let deferredPrompt;
+
+window.addEventListener("beforeinstallprompt",(e)=>{
+e.preventDefault();
+deferredPrompt=e;
+document.getElementById("installBtn").style.display="block";
+});
+
+document.getElementById("installBtn").onclick=async()=>{
+if(!deferredPrompt) return;
+deferredPrompt.prompt();
+};
+
+if("serviceWorker" in navigator){
+navigator.serviceWorker.register("sw.js");
+}
+
+</script>
+
+</body>
+</html>
