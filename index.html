@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FM Apocalipsis 100.7</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#111111">
+
+<style>
+
+body{
+margin:0;
+font-family:Arial, Helvetica, sans-serif;
+background:linear-gradient(180deg,#0f0f0f,#1a1a1a);
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+}
+
+.app{
+width:360px;
+padding:25px;
+border-radius:24px;
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(14px);
+text-align:center;
+box-shadow:0 10px 40px rgba(0,0,0,0.6);
+}
+
+.title{
+font-size:26px;
+font-weight:bold;
+}
+
+.subtitle{
+opacity:.8;
+margin-bottom:15px;
+}
+
+.widget{
+background:rgba(255,255,255,0.12);
+border-radius:16px;
+padding:14px;
+margin-top:12px;
+}
+
+.live{
+color:#00ffa2;
+font-weight:bold;
+margin-bottom:8px;
+}
+
+.cover{
+width:140px;
+border-radius:14px;
+margin:10px auto;
+box-shadow:0 10px 25px rgba(0,0,0,0.6);
+}
+
+button{
+border:none;
+border-radius:14px;
+padding:12px 20px;
+margin:6px;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.play{ background:#ff1c1c; color:white;}
+.whatsapp{ background:#25D366; color:black;}
+.youtube{ background:#ff0000; color:white;}
+.install{ background:#0078ff; color:white; }
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<div class="title">FM Apocalipsis 100.7</div>
+<div class="subtitle">La voz que viene de lo Alto</div>
+
+<div class="widget">
+<div id="clock"></div>
+<div id="weather"></div>
+<div>Santa Sylvina, Chaco</div>
+</div>
+
+<div class="widget">
+
+<div class="live">● EN VIVO</div>
+
+<img src="logo.png" class="cover">
+
+<audio id="radio">
+<source src="https://radios.solumedia.com:6322/stream" type="audio/mpeg">
+</audio>
+
+<div>
+<button class="play" onclick="playRadio()">▶ Play</button>
+<button class="play" onclick="pauseRadio()">⏸ Pausa</button>
+</div>
+
+<button id="installBtn" class="install">
+📲 Instalar App
+</button>
+
+</div>
+
+<div class="widget">
+
+<a href="https://conexion354-source.github.io/apocalipsis100.7/" target="_blank">
+<button class="whatsapp">Chatea con nosotros en vivo</button>
+</a>
+
+<br>
+
+<a href="https://www.youtube.com/@zonafe" target="_blank">
+<button class="youtube">▶ Mira Zona Fe en vivo</button>
+</a>
+
+</div>
+
+</div>
+
+<script>
+
+const radio=document.getElementById("radio")
+
+function playRadio(){radio.play()}
+function pauseRadio(){radio.pause()}
+
+function updateClock(){
+const now=new Date()
+document.getElementById("clock").innerText =
+now.toLocaleTimeString("es-AR",{timeZone:"America/Argentina/Cordoba"})
+}
+setInterval(updateClock,1000)
+updateClock()
+
+async function weather(){
+let url="https://api.open-meteo.com/v1/forecast?latitude=-27.83&longitude=-61.14&current_weather=true"
+let r=await fetch(url)
+let data=await r.json()
+document.getElementById("weather").innerText=data.current_weather.temperature+"°C"
+}
+weather()
+
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker.register('sw.js')
+}
+
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt',(e)=>{
+e.preventDefault();
+deferredPrompt=e;
+});
+
+document.getElementById('installBtn').addEventListener('click', async ()=>{
+
+if(deferredPrompt){
+
+deferredPrompt.prompt();
+
+const choice=await deferredPrompt.userChoice;
+
+deferredPrompt=null;
+
+}else{
+
+alert("Si el botón no aparece automáticamente, usa el menú del navegador y elige 'Instalar app' o 'Añadir a pantalla de inicio'.");
+
+}
+
+});
+
+</script>
+
+</body>
+</html>
